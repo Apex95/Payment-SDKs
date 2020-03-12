@@ -1,0 +1,229 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+
+
+
+<script>
+
+/* Defining helper functions/objects */
+// changeImpactedElement: function that removes the provided class(es) and adds the provided class(es) to Hosted Payment Fields element
+function changeImpactedElement(tagId, removeClass, addClass) {
+    removeClass = removeClass || "";
+    addClass = addClass || "";
+    $("[data-bluesnap=" + tagId + "]")
+        .removeClass(removeClass)
+        .addClass(addClass);
+}
+// getErrorText: function that takes error code (received from BlueSnap) and returns associated help text
+function getErrorText(errorCode) {
+  switch (errorCode) {
+    case "001":
+      return "Please enter a valid card number";
+    case "002":
+      return "Please enter the CVV/CVC of your card";
+    case "003":
+      return "Please enter your card's expiration date";
+    case "22013": 
+      return "Card type is not supported by merchant"; 
+    case "400":
+      return "Session expired please refresh page to continue";
+    case "403": 
+    case "404":
+    case "500":
+      return "Internal server error please try again later";
+    default: 
+      break; 
+   }
+ }
+// cardUrl: object that stores card type code and associated card image URL
+var cardUrl = {
+  "AmericanExpress": "https://files.readme.io/97e7acc-Amex.png", 
+  "CarteBleau": "https://files.readme.io/5da1081-cb.png",
+  "DinersClub": "https://files.readme.io/8c73810-Diners_Club.png",
+  "Discover": "https://files.readme.io/caea86d-Discover.png",
+  "JCB": "https://files.readme.io/e076aed-JCB.png",
+  "MaestroUK": "https://files.readme.io/daeabbd-Maestro.png",
+  "MasterCard": "https://files.readme.io/5b7b3de-Mastercard.png",
+  "Solo": "https://sandbox.bluesnap.com/services/hosted-payment-fields/cc-types/solo.png", 
+  "Visa": "https://files.readme.io/9018c4f-Visa.png"
+};
+
+/* Defining bsObj: object that stores Hosted Payment Fields 
+event handlers, styling, placeholder text, etc. */
+var bsObj = {
+  onFieldEventHandler: {
+    onFocus: function(tagId) {
+      // Handle focus
+      changeImpactedElement(tagId, "hosted-field-valid hosted-field-invalid", "hosted-field-focus"); 
+    },
+    onBlur: function(tagId) {
+      // Handle blur
+      changeImpactedElement(tagId, "hosted-field-focus"); 
+    },
+    onError: function(tagId, errorCode, errorDescription) {
+      // Handle a change in validation
+      changeImpactedElement(tagId, "hosted-field-valid hosted-field-focus", "hosted-field-invalid");     
+      $("#" + tagId + "-help").removeClass('helper-text-green').text(errorCode + " - " + errorDescription); 
+	},
+    onType: function(tagId, cardType, cardData) {
+      // get card type from cardType and display card image
+      $("#card-logo > img").attr("src", cardUrl[cardType]);
+      if (null != cardData) {
+         $("#" + tagId + "-help").addClass('helper-text-green').text(JSON.stringify(cardData));
+      }
+    },
+    onValid: function(tagId) {
+      // Handle a change in validation
+      changeImpactedElement(tagId, "hosted-field-focus hosted-field-invalid", "hosted-field-valid"); 
+      $("#" + tagId + "-help").text(""); 
+    }
+  },
+  //styling is optional
+  style: {
+    // Styling all inputs
+    "input": {
+      "font-size": "14px",
+      "font-family": "Helvetica Neue,Helvetica,Arial,sans-serif",
+      "line-height": "1.42857143",
+      "color": "#555"
+    },
+
+    // Styling a specific field
+    /*"#ccn": {
+                        
+                    },*/
+
+    // Styling Hosted Payment Field input state
+    ":focus": {
+      "color": "#555"
+    }
+  },
+  ccnPlaceHolder: "4111222233334444",
+  cvvPlaceHolder: "123",
+  expPlaceHolder: "MM/YY",
+  expDropDownSelector: false//set to true for exp. date dropdown
+}; 
+
+/* After DOM is loaded, calling bluesnap.hostedPaymentFieldsCreation: function that takes token and bsObj as inputs and initiates Hosted Payment Fields */
+$(document).ready(function() {
+  bluesnap.hostedPaymentFieldsCreation("6b400a64036835a301026137dd8c8f74ebe99c46830aa30a8c6754495c43b4c2_", bsObj); //insert your Hosted Payment Fields token
+});
+
+/* Calling bluesnap.submitCredentials: function that submits card data to BlueSnap, where it will be associated with token, and calls input function with card data object if submission was successful */
+function do_when_clicking_submit_button() {
+  bluesnap.submitCredentials(function(callback) {
+    console.log(callback);
+      if (null != callback.error) {
+        var errorArray = callback.error;
+            for (i in errorArray) {
+        $("#" + errorArray[i].tagId + "-help").text(errorArray[i].errorCode + " - " + errorArray[i].errorDescription); 
+            }
+      } else {
+        var cardData = callback.cardData;
+      alert(
+        "Card Type: " +
+        cardData.ccType +
+        " Last 4 Digits: " +
+        cardData.last4Digits +
+        " Issuing Country: " +
+        cardData.issuingCountry +
+        " Is Regulated Card: " +
+        cardData.isRegulatedCard + 
+        " Card Sub Type: " + 
+        cardData.cardSubType + 
+        " Bin Category: " +
+        cardData.binCategory +    
+        " Exp: " +
+        cardData.exp +
+        " after that I can call final submit"
+      );
+      // This is where you would perform final submission to your server
+      }
+    }
+  );
+}
+
+</script>
+<style>
+/* Bootstrap styles*/
+
+.panel {
+  width: 70%;
+  margin: 2em auto;
+}
+
+
+.panel-body {
+  width: 90%;
+  margin: 2em auto;
+}
+
+
+.helper-text {
+  color: #e93143;
+  font-size: 12px;
+  margin-top: 5px;
+  height: 12px;
+  display: block;
+}
+
+.helper-text-green {
+  color: green;
+}
+
+/* Hosted Payment Fields styles*/
+.hosted-field-focus { 
+  border: 1px solid #66afe9;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(102,175,233,.6);
+}
+
+.hosted-field-invalid {
+  border: 1px solid #e93143;
+  box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 8px rgba(233,49,67, 0.8);
+}
+
+.hosted-field-valid {
+  border: 1px solid #14ba57 ;
+}
+</style>
+
+
+<div class="panel panel-default bootstrap-basic">
+   <form class="panel-body" id="checkout-form" onsubmit="do_when_clicking_submit_button()" action="#">
+    <div class="row">
+       <div class="form-group col-md-12">
+          <label for="cardholder-name">Name on Card</label>
+          <input type="text" class="form-control" id="cardholder-name" placeholder="Full Name">
+          <span class="helper-text"></span>
+       </div>
+       <!--Hosted Field for CC number-->
+       <div class="form-group col-md-12">
+          <label for="card-number">Card Number</label>
+          <div class="input-group">
+            <div class="form-control" id="card-number" data-bluesnap="ccn"></div>
+            <div id="card-logo" class="input-group-addon"><img src="https://files.readme.io/d1a25b4-generic-card.png" height="20px"></div>
+         </div>
+         <span class="helper-text" id="ccn-help"></span>
+       </div>
+			 <!--Hosted Field for CC EXP-->
+       <div class="form-group col-xs-7">
+          <label for="exp-date">Exp. Date</label>
+          <div class="form-control" id="exp-date" data-bluesnap="exp"></div>
+          <span class="helper-text" id="exp-help"></span>
+       </div>
+			<!--Hosted Field for CC CVV-->
+			<div class="form-group col-xs-5">
+         <label for="cvv">Security Code</label>
+         <div class="form-control" id="cvv" data-bluesnap="cvv"></div>
+         <span class="helper-text" id='cvv-help'></span>
+      </div>
+    </div>	
+
+		<button class="btn btn-success btn-lg col-xs-6 col-xs-offset-3" type="submit" id="submit-button">Pay Now</button>
+			
+		</form>
+  
+</div>
+
+<!--BlueSnap Hosted Payment Fields JavaScript file-->
+<script type="text/javascript" src="https://sandbox.bluesnap.com/source/web-sdk/bluesnap.js"></script>

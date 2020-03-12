@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path=""/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="stripe-java-7.26.0.jar"/>
+	<classpathentry kind="lib" path="/home/dan/work/payment_hacking/stripe/gson-2.8.2.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>

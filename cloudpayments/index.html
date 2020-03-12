@@ -1,0 +1,49 @@
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<script src="checkout.js"></script>
+
+
+<script>
+this.createCryptogram = function () {
+    var result = checkout.createCryptogramPacket();
+
+    
+
+    
+    if (result.success) {
+        // if cryptogram generated successfully
+        alert(result.packet);
+    }
+    else {
+        
+        // if issues found, object  `result.messages` returns: 
+        // { name: "Name field contains too much letters", cardNumber: "Wrong PAN" }
+        // where `name`, `cardNumber` matches to attribute values `<input ... data-cp="cardNumber">`
+       for (var msgName in result.messages) {
+           alert(result.messages[msgName]);
+       }
+    }
+};
+
+$(function () {
+    
+    /* Creation of checkout */
+    checkout = new cp.Checkout(
+    // public id 
+    "test_api_00000000000000000000001",
+    // tag, containing card data fields
+    document.getElementById("paymentFormSample"));
+    
+});
+</script>
+
+
+<form id="paymentFormSample" autocomplete="off">
+    <input type="text" data-cp="cardNumber" value="5555555555554444">
+    <input type="text" data-cp="expDateMonth" value="11">
+    <input type="text" data-cp="expDateYear" value="24">
+    <input type="text" data-cp="cvv" value="123">
+    <input type="text" data-cp="name" value="dan dan">
+    <button type="button" onClick="createCryptogram()">Pay 100 Rubles</button>
+</form>
+

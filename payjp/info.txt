@@ -1,0 +1,16 @@
+sk_test_a451da48fc838c75bb038dc0
+pk_test_3b3b52c488b5d1b748be0bd2
+
+
+Origin token
+whook_9c3d23c3e84178244c0d68c3b9
+
+(It is set in the X-Payjp-Webhook-Token header when sending a webhook.)
+(It is used to confirm the request certificate from PAY.JP.)
+
+
+curl https://api.pay.jp/v1/charges \
+-u sk_test_a451da48fc838c75bb038dc0: \
+-d "amount=500" \
+-d "currency=jpy" \
+-d "card=tok_123fb44f42e208a7512d4f6d7e5b"

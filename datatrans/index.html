@@ -1,0 +1,20 @@
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<script src="https://pay.sandbox.datatrans.com/upp/payment/js/datatrans-2.0.0.min.js"></script>
+
+
+
+<form id="paymentForm"
+      data-merchant-id="1100020006"
+      data-amount="850"
+      data-currency="CHF"
+      data-refno="91827364"
+      data-sign="4f674ed46acdc7a5192235539be1ae3c91be29ab9297032bc72cff85f6e88207">
+    <a id="paymentButton" class="btn btn-primary">Pay CHF 10.00</a>
+</form>
+
+<script type="text/javascript">
+    $("#paymentButton").click(function () {
+        Datatrans.startPayment({'form': '#paymentForm'});
+    });
+</script>

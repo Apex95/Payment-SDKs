@@ -1,0 +1,45 @@
+<script>
+        f = function(a) {
+
+
+            var b, c, d, e, f, h, i, j = "",
+                k = 0;
+            for (a = g(a); k < a.length;) 
+
+                b = a.charCodeAt(k++),
+
+                c = a.charCodeAt(k++),
+
+                d = a.charCodeAt(k++),
+
+                e = b >> 2, 
+
+                f = (3 & b) << 4 | c >> 4,
+
+                h = (15 & c) << 2 | d >> 6, 
+
+                i = 63 & d, 
+  
+                isNaN(c) ? h = i = 64 : isNaN(d) && (i = 64), 
+                j = j + n.charAt(e) + n.charAt(f) + n.charAt(h) + n.charAt(i),
+                console.log("result:  %o", j)
+            return j
+        }
+
+        n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+
+        g = function(a) {
+            a = a.replace(/\r\n/g, "\n");
+            for (var b = "", c = 0; c < a.length; c++) {
+                var d = a.charCodeAt(c);
+                128 > d ? b += String.fromCharCode(d) : d > 127 && 2048 > d ? (b += String.fromCharCode(d >> 6 | 192), b += String.fromCharCode(63 & d | 128)) : (b += String.fromCharCode(d >> 12 | 224), b += String.fromCharCode(d >> 6 & 63 | 128), b += String.fromCharCode(63 & d | 128))
+            }
+
+
+
+            return b // seems to return the same string
+        }
+</script>
+
+<body onload="f('08ADB60D-740B-4ED0-82CF-3F395CD00AB6')">
+</body>

@@ -1,0 +1,120 @@
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type="text/javascript"></script>
+<script type="text/javascript" src="2checkout.js"></script>
+
+<script>
+n = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+f = function(a) {
+            var b, c, d, e, f, h, i, j = "",
+                k = 0;
+            for (a = g(a); k < a.length;) 
+              b = a.charCodeAt(k++), 
+              c = a.charCodeAt(k++), 
+              d = a.charCodeAt(k++), 
+              e = b >> 2, 
+              f = (3 & b) << 4 | c >> 4, 
+              h = (15 & c) << 2 | d >> 6, 
+              i = 63 & d, isNaN(c) ? h = i = 64 : isNaN(d) && (i = 64), 
+              j = j + n.charAt(e) + n.charAt(f) + n.charAt(h) + n.charAt(i);
+
+            return j
+        },
+
+g = function(a) {
+    a = a.replace(/\r\n/g, "\n");
+    for (var b = "", c = 0; c < a.length; c++) 
+    {
+        var d = a.charCodeAt(c);
+        128 > d ? b += String.fromCharCode(d) : d > 127 && 2048 > d ? (b += String.fromCharCode(d >> 6 | 192), b += String.fromCharCode(63 & d | 128)) : (b += String.fromCharCode(d >> 12 | 224), b += String.fromCharCode(d >> 6 & 63 | 128), b += String.fromCharCode(63 & d | 128))
+    }
+    return b
+}
+</script>
+
+
+<script>
+// Called when token created successfully.
+
+// d
+var successCallback = function(data) {
+    var myForm = document.getElementById('myCCForm');
+
+    // Set the token as the value for the token input
+    myForm.token.value = data.response.token.token;
+
+    // IMPORTANT: Here we call `submit()` on the form element directly instead of using jQuery to prevent and infinite token request loop.
+    myForm.submit();
+  };
+
+  // Called when token creation fails.
+  
+  // e
+  var errorCallback = function(data) {
+    if (data.errorCode === 200) {
+      // This error code indicates that the ajax call failed. We recommend that you retry the token request.
+    } else {
+      alert(data.errorMsg);
+    }
+  };
+
+  var tokenRequest = function() {
+    // Setup token request arguments
+
+    // g
+    var args = {
+      sellerId: "901412262",
+      publishableKey: "08ADB60D-740B-4ED0-82CF-3F395CD00AB6",
+      ccNo: $("#ccNo").val(),
+      cvv: $("#cvv").val(),
+      expMonth: $("#expMonth").val(),
+      expYear: $("#expYear").val()
+    };
+
+    // Make the token request
+    TCO.requestToken(successCallback, errorCallback, args);
+    
+  };
+
+
+  $(function() {
+    //alert(f("08ADB60D-740B-4ED0-82CF-3F395CD00AB6"));
+
+    // Pull in the public encryption key for our environment
+    TCO.loadPubKey('sandbox');
+
+    $("#myCCForm").submit(function(e) {
+      // alert('aici');
+      // Call our token request function
+      tokenRequest();
+
+      // Prevent form from submitting
+      return false;
+    });
+  });
+</script>
+
+<form id="myCCForm" action="/checkout" method="post">
+    <input name="token" type="hidden" value="" />
+    <div>
+      <label>
+        <span>Card Number</span>
+        <input id="ccNo" type="text" value="" autocomplete="off" required />
+      </label>
+    </div>
+    <div>
+      <label>
+        <span>Expiration Date (MM/YYYY)</span>
+        <input id="expMonth" type="text" size="2" required />
+      </label>
+      <span> / </span>
+      <input id="expYear" type="text" size="4" required />
+    </div>
+    <div>
+      <label>
+        <span>CVC</span>
+        <input id="cvv" type="text" value="" autocomplete="off" required />
+      </label>
+    </div>
+    <input type="submit" value="Submit Payment" />
+  </form>
+
+

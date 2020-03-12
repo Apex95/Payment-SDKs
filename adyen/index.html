@@ -1,0 +1,46 @@
+
+<script type="text/javascript" src="re/checkoutSDK.1.9.7.min.js"></script>
+
+
+<script type="text/javascript">
+function makeHttpObject() {
+  try {return new XMLHttpRequest();}
+  catch (error) {}
+  try {return new ActiveXObject("Msxml2.XMLHTTP");}
+  catch (error) {}
+  try {return new ActiveXObject("Microsoft.XMLHTTP");}
+  catch (error) {}
+
+  throw new Error("Could not create HTTP request object.");
+}
+</script>
+
+
+<script type="text/javascript">
+// Create a config object for SDK.
+var sdkConfigObj = {
+   context : 'test' // change this to 'live' when you go live.
+};
+
+var request = makeHttpObject();
+request.open("GET", "http://172.19.7.119/getsession", true);
+request.send(null);
+request.onreadystatechange = function() {
+  if (request.readyState == 4)
+  {
+    //alert(request.responseText)
+    paymentSession = JSON.parse(request.responseText).paymentSession;
+
+    console.log("session key: %o", paymentSession);
+
+    // Initiate the Checkout form.
+    var checkout = chckt.checkout(paymentSession, '#your-payment-div', sdkConfigObj);
+  }
+};
+ 
+
+</script>
+
+<div id="your-payment-div">
+
+</div>
